@@ -34,7 +34,7 @@ class User(models.Model):
         null=True
     )
 
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "users"
@@ -166,13 +166,14 @@ class TenantUser(models.Model):
 
 
 class UserRole(models.Model):
+    user_role_id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(
         User,
         on_delete=models.DO_NOTHING,
         db_column="user_id"
     )
 
-    tenant_id = models.UUIDField(null=True)
+    tenant_id = models.UUIDField(null=True, blank=True)
 
     role = models.ForeignKey(
         Role,
@@ -180,7 +181,7 @@ class UserRole(models.Model):
         db_column="role_id"
     )
 
-    assigned_by = models.ForeignKey(Tenant, on_delete= models.DO_NOTHING,null=True)
+    assigned_by = models.ForeignKey(Tenant, on_delete= models.DO_NOTHING,null=True, db_column="assigned_by", blank=True)
     assigned_at = models.DateTimeField()
 
     class Meta:

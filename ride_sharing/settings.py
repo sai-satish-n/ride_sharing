@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'authentication.middleware.EncryptedJWTMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -129,3 +130,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+AES_SECRET_KEY = getenv('AES_SECRET_KEY')
+
+JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')
+JWT_ALGORITHM = "HS256"
+JWT_EXP_MINUTES = 60
