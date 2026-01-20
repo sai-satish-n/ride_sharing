@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "authentication",
     'drivers',
+    'app_admin',
     'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.auth',
