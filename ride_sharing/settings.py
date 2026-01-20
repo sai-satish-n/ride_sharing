@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'drivers',
     'app_admin',
     'rides',
+    'issues',
     'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.auth',
