@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'app_admin',
     'rides',
     'issues',
+    'payments_module',
     'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.auth',
