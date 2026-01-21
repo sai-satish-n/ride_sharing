@@ -111,7 +111,7 @@ class TenantStatusLookup(models.Model):
 
 
 class Tenant(models.Model):
-    tenant_id = models.UUIDField(primary_key=True)
+    tenant_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     tenant_name = models.CharField(max_length=255)
     support_email = models.EmailField(null=True)
     support_phone = models.CharField(max_length=20, null=True)
@@ -136,7 +136,7 @@ class Tenant(models.Model):
 
 
 class TenantUser(models.Model):
-    tenant_user_id = models.UUIDField(primary_key=True)
+    tenant_user_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(
                 User, 
                 on_delete=models.DO_NOTHING, 
