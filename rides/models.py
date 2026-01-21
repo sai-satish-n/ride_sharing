@@ -76,6 +76,7 @@ class Region(models.Model):
 
 
 class TenantRegion(models.Model):
+    tenant_region_id = models.BigAutoField(primary_key=True)
     tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id")
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, db_column="region_code")
     is_active = models.BooleanField(default=True)
@@ -121,12 +122,13 @@ class Ride(models.Model):
 
 
 class RideDetailsForRiders(models.Model):
+    ride_detail_id = models.BigAutoField(primary_key=True)
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
     rider = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="rider_id")
     from_location = models.BigIntegerField(null=True, blank=True)
     to_location = models.BigIntegerField(null=True, blank=True)
     ride_fare = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
-    ride_status = models.ForeignKey(RideStatusLookup, on_delete=models.DO_NOTHING, null=True, blank=True, db_column="")
+    ride_status = models.ForeignKey(RideStatusLookup, on_delete=models.DO_NOTHING, null=True, blank=True, db_column="ride_status")
     verification_status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -192,7 +194,7 @@ class RidesFeedback(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
     from_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="feedback_from", db_column="from_user_id")
     to_user = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, related_name="feedback_to", db_column="to_user_id")
-    tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id")
+    tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id", blank=True, null=True)
     rating = models.IntegerField(null=True, blank=True)
     feedback_text = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
