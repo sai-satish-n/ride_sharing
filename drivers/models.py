@@ -45,6 +45,7 @@ class Driver(models.Model):
     
 
 class DriverFleetAssignment(models.Model):
+    driver_fleet_assign_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     driver = models.ForeignKey(
         Driver,
         on_delete=models.DO_NOTHING,
@@ -53,7 +54,8 @@ class DriverFleetAssignment(models.Model):
 
     tenant_id = models.ForeignKey(
         "authentication.Tenant",
-        on_delete=models.DO_NOTHING
+        on_delete=models.DO_NOTHING,
+        db_column="tenant_id"
     )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
@@ -78,7 +80,11 @@ class VehicleType(models.Model):
 class Vehicle(models.Model):
     vehicle_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
-    fleet_tenant_id = models.UUIDField()
+    fleet_tenant_id = models.ForeignKey(
+        "authentication.Tenant", 
+        on_delete=models.DO_NOTHING, 
+        db_column="fleet_tenant_id"
+    )
 
     vehicle_number = models.CharField(max_length=20)
 
@@ -98,6 +104,7 @@ class Vehicle(models.Model):
         return self.vehicle_number
 
 class VehicleDriverAssignment(models.Model):
+    vehicle_driver_assign_id = models.BigAutoField(primary_key=True)
     vehicle = models.ForeignKey(
         Vehicle,
         on_delete=models.DO_NOTHING,
