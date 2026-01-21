@@ -80,6 +80,7 @@ class UserPasswordHistory(models.Model):
 
 
 class EmergencyContact(models.Model):
+    emergency_contact_id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(
         User,
         on_delete=models.DO_NOTHING,
@@ -155,7 +156,8 @@ class TenantUser(models.Model):
 
     status = models.ForeignKey(
         UserStatusLookup,
-        on_delete=models.DO_NOTHING
+        on_delete=models.DO_NOTHING,
+        db_column="status"
     )
 
     joined_at = models.DateTimeField()
