@@ -1,3 +1,8 @@
 from django.contrib import admin
+from app_admin.models import *
 
-# Register your models here.
+
+admin.site.register(KYCTypeLookup)
+admin.site.register(KYCStatusLookup)
+admin.site.register(KYCDetails)
+admin.site.register(KYCMedia)
