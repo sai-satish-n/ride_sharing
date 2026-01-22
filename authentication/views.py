@@ -114,13 +114,39 @@ class RoleSelectView(APIView):
 
         role = UserRole.objects.get(user_id=user_id, role_id=role_id).role
 
-        jwt_token = generate_jwt({"user_id": user_id, "role": role.role_id})
+        access_token = generate_access_token(
+            {"user_id": str(user_id), "role": role.role_id}
+        )
 
-        encrypted_token = encrypt_jwt(jwt_token)
+        refresh_token = generate_refresh_token(
+            {"user_id": str(user_id), "role": role.role_id}
+        )
 
-        del request.session[session_id]
+        encrypted_access = encrypt_jwt(access_token)
+        encrypted_refresh = encrypt_jwt(refresh_token)
 
-        return Response({"token": encrypted_token, "role": role.role_id})
+        response = Response({"access_token": encrypted_access, "role": role.role_id})
+
+        response.set_cookie(
+            "access_token",
+            encrypted_access,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            max_age=900,
+        )
+
+        # Refresh token in HttpOnly cookie
+        response.set_cookie(
+            key="refresh_token",
+            value=encrypted_refresh,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            max_age=7 * 24 * 60 * 60,
+        )
+
+        return response
 
 
 class TenantUserCreateAPIView(APIView):
