@@ -103,8 +103,8 @@ class RideStatusLookup(models.Model):
 
 class Ride(models.Model):
     ride_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    driver = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, db_column="driver_id")
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, db_column="vehicle_id")
+    driver = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, db_column="driver_id", null=True, blank=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, db_column="vehicle_id", null=True, blank=True)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, db_column="region_code")
     currency_code = models.CharField(max_length=3)
     timezone = models.CharField(max_length=50)
@@ -125,8 +125,9 @@ class RideDetailsForRiders(models.Model):
     ride_detail_id = models.BigAutoField(primary_key=True)
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
     rider = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="rider_id")
-    from_location = models.BigIntegerField(null=True, blank=True)
-    to_location = models.BigIntegerField(null=True, blank=True)
+    otp = models.IntegerField()
+    from_location = models.CharField(max_length=20, null=True, blank=True)
+    to_location = models.CharField(max_length=20, null=True, blank=True)
     ride_fare = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
     ride_status = models.ForeignKey(RideStatusLookup, on_delete=models.DO_NOTHING, null=True, blank=True, db_column="ride_status")
     verification_status = models.BooleanField(default=False)
@@ -147,7 +148,7 @@ class RideLocationLog(models.Model):
     latitude = models.TextField(null=True, blank=True)
     longitude = models.TextField(null=True, blank=True)
     heading_towards = models.TextField(null=True, blank=True)
-    h3_index = models.BigIntegerField()
+    h3_index = models.CharField(max_length=20)
     speed = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -206,3 +207,32 @@ class RidesFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback {self.feedback_id}"
+
+
+class RideCancellationLog(models.Model):
+    cancellation_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
+    cancelled_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.DO_NOTHING)
+    cancelled_by_driver = models.ForeignKey(Driver, null=True, blank=True, on_delete=models.DO_NOTHING)
+    reason = models.TextField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "ride_cancellation_log"
+        managed = True
+
+    def __str__(self):
+        return f"RideCancellationLog {self.ride}"
+    
+
+class DriverRideRejection(models.Model):
+    rejection_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
+    driver = models.ForeignKey(Driver, on_delete=models.DO_NOTHING)
+    rejected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "driver_ride_rejections"
+        managed = True
+
+    
