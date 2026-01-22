@@ -6,6 +6,7 @@ from rides.models import Ride, Region
 
 
 class PricingConfig(models.Model):
+    pricing_config_id = models.BigAutoField(primary_key=True)
     tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id")
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, db_column="region_code")
     base_fare = models.DecimalField(max_digits=10, decimal_places=4)
@@ -20,6 +21,7 @@ class PricingConfig(models.Model):
 
 
 class SurgePricing(models.Model):
+    surge_pricing_id = models.BigAutoField(primary_key=True)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, db_column="region_code")
     surge_multiplier = models.DecimalField(max_digits=10, decimal_places=4)
     effective_from = models.DateTimeField()
@@ -31,6 +33,7 @@ class SurgePricing(models.Model):
 
 
 class RideFareSnapshot(models.Model):
+    ride_fare_snapshot_id = models.BigAutoField(primary_key=True)
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id")
     rider = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="rider_id")
     base_fare = models.DecimalField(max_digits=10, decimal_places=4)
@@ -103,7 +106,7 @@ class Settlement(models.Model):
     payout_method = models.CharField(max_length=50, null=True, blank=True)
     payout_reference = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    settled_at = models.DateTimeField(null=True, blank=True)
+    setteled_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = "settlements"
