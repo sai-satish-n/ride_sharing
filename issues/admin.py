@@ -1,3 +1,20 @@
 from django.contrib import admin
+from issues.models import *
 
-# Register your models here.
+admin.site.register(SOSContactType)
+admin.site.register(SOSSupportDetail)
+admin.site.register(SOSAlertStatusLookup)
+admin.site.register(SOSAlert)
+admin.site.register(NotificationStatusLookup)
+admin.site.register(SOSUserNotification)
+admin.site.register(TicketStatusLookup)
+admin.site.register(LostItemTicket)
+admin.site.register(LostItemMedia)
+admin.site.register(LostItemNotification)
+admin.site.register(PriorityLookup)
+admin.site.register(ComplaintCategory)
+admin.site.register(SLAIssueType)
+admin.site.register(SLAPolicy)
+admin.site.register(Complaint)
+admin.site.register(ComplaintAssign)
+admin.site.register(ComplaintSLA)

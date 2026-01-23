@@ -32,7 +32,7 @@ class Driver(models.Model):
         null=True
     )
 
-    current_h3_index = models.BigIntegerField(null=True)
+    current_h3_index = models.CharField(max_length=20,null=True)
     last_location = models.TextField(null=True)
     location_updated_at = models.DateTimeField(null=True)
 
