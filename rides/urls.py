@@ -6,7 +6,8 @@ from .views import (
     UpdateRideStatusView,
     RideLocationLogView,
     CancelRideView, 
-    RejectRideView
+    RejectRideView,
+    ListPreviousRidesView,
 )
 
 urlpatterns = [
@@ -17,5 +18,6 @@ urlpatterns = [
     path("location/", RideLocationLogView.as_view()),
     path("reject/", RejectRideView.as_view()),
     path("cancel/", CancelRideView.as_view()),
+    path("list_previous_rides/<uuid:user_id>", ListPreviousRidesView.as_view()),
     
 ]

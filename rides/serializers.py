@@ -136,3 +136,9 @@ class RejectRideSerializer(serializers.Serializer):
         ride = Ride.objects.get(pk=ride_id) 
 
         return DriverRideRejection.objects.create(driver=driver, ride=ride, **validated_data)
+
+
+class RideDetailsForRidersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RideDetailsForRiders
+        fields = '__all__'

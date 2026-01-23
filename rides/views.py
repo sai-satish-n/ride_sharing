@@ -224,3 +224,9 @@ class RejectRideView(APIView):
 
         return Response({"status": "REJECTED", "rejection_id": str(rejection.rejection_id)}, status=status.HTTP_201_CREATED)
 
+
+class ListPreviousRidesView(APIView):
+    def get(self, request, user_id):
+        rides = RideDetailsForRiders.objects.filter(rider_id = user_id)
+        serializer = RideDetailsForRidersSerializer(rides, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
