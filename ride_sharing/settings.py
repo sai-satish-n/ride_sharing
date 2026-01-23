@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rides',
     'issues',
     'payments_module',
+    'corsheaders',
     'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'authentication.middleware.EncryptedJWTMiddleware',
@@ -135,3 +137,8 @@ AES_SECRET_KEY = getenv('AES_SECRET_KEY')
 JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')
 JWT_ALGORITHM = "HS256"
 JWT_EXP_MINUTES = 60
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
