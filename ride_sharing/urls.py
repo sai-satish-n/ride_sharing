@@ -22,4 +22,5 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('rides/', include('rides.urls')),
     path('app_admin/', include('app_admin.urls')),
+    path('payments/', include('payments_module.urls')),
 ]
