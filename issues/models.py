@@ -109,10 +109,11 @@ class LostItemTicket(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.DO_NOTHING, db_column="ride_id", null=True, blank=True)
     ticket_status = models.ForeignKey(TicketStatusLookup, on_delete=models.DO_NOTHING, db_column="ticket_status", null=True, blank=True)
     raised_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="raised_by", related_name="lost_item_raised_by")
-    concerned_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="concerned_user_id", related_name="lost_item_concerned_user")
+    concerned_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, db_column="concerned_user_id", related_name="lost_item_concerned_user",  null=True, blank=True)
     concerned_driver = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, db_column="concerned_driver_id", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     closed_at = models.DateTimeField(null=True, blank=True)
+    description = models.CharField()
 
     class Meta:
         db_table = "lost_item_tickets"
@@ -197,7 +198,7 @@ class Complaint(models.Model):
     sla_policy = models.ForeignKey(SLAPolicy, on_delete=models.DO_NOTHING, db_column="sla_policy_id")
     complaint_status = models.ForeignKey(TicketStatusLookup, on_delete=models.DO_NOTHING, db_column="complaint_status_id", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True, auto_created=True)
 
     class Meta:
         db_table = "complaints"
