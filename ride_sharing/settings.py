@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure--6@ju=%gbzj5$rd7v+-lb5a_er8kywmrb22rtjm*3ok@_ct*pw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'rides',
     'issues',
     'payments_module',
+    'fleet_admin',
+    'common',
+    'django_crontab',
     'corsheaders',
     'django.contrib.postgres',
     'django.contrib.admin',
@@ -140,5 +143,18 @@ JWT_EXP_MINUTES = 60
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+
+CRONJOBS = [
+    ("0 12 * * 0", "payments_module.management.commands.weekly_payouts"),
+]
+
