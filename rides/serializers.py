@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from authentication.models import User
-from rides.models import Ride, RideDetailsForRiders, RideStatusLookup, EventLog, Region, RideLocationLog, Driver, DriverRideRejection, RideCancellationLog
+from rides.models import Ride, RideDetailsForRiders, RideStatusLookup, EventLog, Region, RideLocationLog, Driver, DriverRideRejection, RideCancellationLog, VehicleType, TenantRegion
 import uuid
 import secrets
+from payments_module.models import RideFareSnapshot
 
 
 def generate_otp():
@@ -12,13 +13,16 @@ def generate_otp():
 class BookRideSerializer(serializers.Serializer):
     user_id = serializers.UUIDField()
     region_code = serializers.UUIDField()
-    from_location = serializers.IntegerField()
-    to_location = serializers.IntegerField()
+    from_location = serializers.CharField()
+    to_location = serializers.CharField()
+    vehicle_type = serializers.IntegerField()
+    ride_fare = serializers.FloatField()
 
     def create(self, validated_data):
         user = User.objects.get(user_id=validated_data["user_id"])
         region = Region.objects.get(region_code=validated_data["region_code"])
         booked_status = RideStatusLookup.objects.get(ride_status="BOOKED")
+        vehicle_type = validated_data["vehicle_type"]
         otp = secrets.randbelow(900000) + 100000
 
         ride = Ride.objects.create(
@@ -34,7 +38,9 @@ class BookRideSerializer(serializers.Serializer):
             otp=otp,
             from_location=validated_data["from_location"],
             to_location=validated_data["to_location"],
-            ride_status=booked_status
+            ride_status=booked_status,
+            vehicle_type_id = vehicle_type,
+            ride_fare = validated_data["ride_fare"],
         )
 
         EventLog.objects.create(
@@ -43,21 +49,6 @@ class BookRideSerializer(serializers.Serializer):
         )
 
         return ride, otp
-
-
-class AvailableRideSerializer(serializers.ModelSerializer):
-    ride_id = serializers.UUIDField(source="ride.ride_id")
-    region = serializers.CharField(source="ride.region.region_name")
-
-    class Meta:
-        model = RideDetailsForRiders
-        fields = [
-            "ride_id",
-            "from_location",
-            "to_location",
-            "region",
-            "created_at"
-        ]
 
 
 class RideLocationLogSerializer(serializers.ModelSerializer):
@@ -75,47 +66,9 @@ class RideLocationLogSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        print("data for validation", validated_data)
         driver_id = validated_data.pop("driver_id")  # remove driver_id from data
         driver = Driver.objects.get(pk=driver_id)    # fetch the Driver instance
         return RideLocationLog.objects.create(driver=driver, **validated_data)
-
-
-class RideCancellationSerializer(serializers.Serializer):
-    ride_id = serializers.UUIDField()
-    role_name = serializers.CharField()
-    user_id = serializers.UUIDField(required=False)    # optional if role=user
-    driver_id = serializers.UUIDField(required=False)  # optional if role=driver
-    reason = serializers.CharField(required=False, allow_blank=True)
-
-    def create(self, validated_data):
-        ride_id = validated_data.pop("ride_id")
-        role_name = validated_data.pop("role_name").lower()
-        reason = validated_data.pop("reason", None)
-
-        ride = Ride.objects.get(ride_id=ride_id)
-        
-
-        cancelled_by = None
-        cancelled_by_driver = None
-
-        if role_name == "user":
-            user_id = validated_data.pop("user_id")
-            cancelled_by = User.objects.get(pk=user_id)
-            ride_detail = RideDetailsForRiders.objects.get(ride_id=ride_id, rider=User.objects.get(user_id=user_id))
-            ride_detail.ride_status = RideStatusLookup.objects.get(ride_status_id=7)
-            ride_detail.save()
-        else:
-            driver_id = validated_data.pop("driver_id")
-            cancelled_by_driver = Driver.objects.get(pk=driver_id)
-
-        return RideCancellationLog.objects.create(
-            ride=ride,
-            cancelled_by=cancelled_by,
-            cancelled_by_driver=cancelled_by_driver,
-            reason=reason
-        )
-    
     
 class RejectRideSerializer(serializers.Serializer):
     ride_id = serializers.UUIDField(write_only=True)
@@ -128,9 +81,8 @@ class RejectRideSerializer(serializers.Serializer):
         ]
 
     def create(self, validated_data):
-        print("data for validation", validated_data)
         driver_id = validated_data.pop("driver_id")  # remove driver_id from data
-        driver = Driver.objects.get(pk=driver_id)    # fetch the Driver instance
+        driver = Driver.objects.get(user_id=driver_id)    # fetch the Driver instance
 
         ride_id = validated_data.pop("ride_id")  # remove driver_id from data
         ride = Ride.objects.get(pk=ride_id) 
@@ -142,3 +94,25 @@ class RideDetailsForRidersSerializer(serializers.ModelSerializer):
     class Meta:
         model = RideDetailsForRiders
         fields = '__all__'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class FareBreakupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RideFareSnapshot
+        fields = ['base_fare', 'distance_fare', 'time_fare', 'surge_multiplier', 'tax_amount', 'final_fare']
+
+
+class AddExtraAmountSerializer(serializers.Serializer):
+    ride_id = serializers.UUIDField()
+    rider_id = serializers.UUIDField()
+    extra_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Amount must be greater than 0")
+        return value

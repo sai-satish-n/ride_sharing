@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from drivers.models import Driver, Vehicle
+from drivers.models import Driver, Vehicle, VehicleType
 from authentication.models import User, Tenant, TenantUser
 
 class Country(models.Model):
@@ -11,10 +11,11 @@ class Country(models.Model):
     minor_unit = models.CharField(max_length=10)
     default_timezone = models.CharField(max_length=50)
     tax_model = models.CharField(max_length=50)
-    default_tax_percent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    country_code_phone = models.IntegerField(null=True, blank=True)
+    default_tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    country_code_phone = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField()
 
     class Meta:
         db_table = "country"
@@ -28,10 +29,11 @@ class State(models.Model):
     state_code = models.UUIDField(primary_key=True, default=uuid.uuid4)
     country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, db_column="country_code")
     state_name = models.CharField(max_length=100)
-    state_tax_percent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    state_tax_percent = models.DecimalField(max_digits=5, decimal_places=2)
     additional_fees = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField()
 
     class Meta:
         db_table = "states"
@@ -57,14 +59,15 @@ class RegionTypeLookup(models.Model):
 class Region(models.Model):
     region_code = models.UUIDField(primary_key=True, default=uuid.uuid4)
     country = models.ForeignKey(Country, on_delete=models.DO_NOTHING, db_column="country_code")
-    state = models.ForeignKey(State, on_delete=models.DO_NOTHING, db_column="state_code", null=True, blank=True)
+    state = models.ForeignKey(State, on_delete=models.DO_NOTHING, db_column="state_code")
     region_name = models.CharField(max_length=100)
-    region_type = models.ForeignKey(RegionTypeLookup, on_delete=models.DO_NOTHING, db_column="region_type_id", null=True, blank=True)
+    region_type = models.ForeignKey(RegionTypeLookup, on_delete=models.DO_NOTHING, db_column="region_type_id")
     geo_boundary = models.JSONField(null=True, blank=True)
     is_surge_enabled = models.BooleanField(default=True)
     is_service_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField()
 
     class Meta:
         db_table = "regions"
@@ -80,6 +83,8 @@ class TenantRegion(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id")
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, db_column="region_code")
     is_active = models.BooleanField(default=True)
+    region_nick_name = models.CharField()
+    deleted_at = models.DateTimeField()
 
     class Meta:
         db_table = "tenant_regions"
@@ -132,6 +137,11 @@ class RideDetailsForRiders(models.Model):
     ride_status = models.ForeignKey(RideStatusLookup, on_delete=models.DO_NOTHING, null=True, blank=True, db_column="ride_status")
     verification_status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, db_column="vehicle_type")
+    driver_reached_at = models.DateTimeField(null=True, blank=True)
+    ride_started_at = models.DateTimeField(null=True, blank=True)
+    ride_ended_at = models.DateTimeField(null=True, blank=True)
+    is_extra_amount_added = models.BooleanField(default=False)
 
     class Meta:
         db_table = "ride_details_for_riders"
