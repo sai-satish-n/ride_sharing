@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
+# from fleet_admin.models import Fleet
 
-# Create your models here.
 class DriverStatusLookup(models.Model):
     driver_status_id = models.SmallAutoField(primary_key=True)
     status_name = models.CharField(max_length=50, unique=True)
@@ -32,9 +32,11 @@ class Driver(models.Model):
         null=True
     )
 
-    current_h3_index = models.CharField(max_length=20,null=True)
+    current_latitude = models.FloatField()
+    current_longitude= models.FloatField()
     last_location = models.TextField(null=True)
     location_updated_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "drivers"
@@ -46,6 +48,7 @@ class Driver(models.Model):
 
 class DriverFleetAssignment(models.Model):
     driver_fleet_assign_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    fleet = models.ForeignKey('fleet_admin.Fleet', on_delete=models.DO_NOTHING)
     driver = models.ForeignKey(
         Driver,
         on_delete=models.DO_NOTHING,
@@ -83,7 +86,9 @@ class Vehicle(models.Model):
     fleet_tenant_id = models.ForeignKey(
         "authentication.Tenant", 
         on_delete=models.DO_NOTHING, 
-        db_column="fleet_tenant_id"
+        db_column="fleet_tenant_id",
+        null=True,
+        blank=True
     )
 
     vehicle_number = models.CharField(max_length=20)
@@ -119,6 +124,7 @@ class VehicleDriverAssignment(models.Model):
 
     start_time = models.DateTimeField(null=True)
     end_time = models.DateTimeField(null=True)
+    is_default = models.BooleanField()
 
     class Meta:
         db_table = "vehicle_driver_assignments"
