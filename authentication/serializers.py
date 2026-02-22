@@ -2,6 +2,7 @@ from rest_framework import serializers
 from authentication.models import User
 import uuid
 from django.contrib.auth.hashers import make_password, check_password
+from django.utils import timezone
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -44,6 +45,32 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "phone_country_code",
+            "user_status",
+        ]
+        extra_kwargs = {
+            "email": {"required": False},
+            "last_name": {"required": False},
+        }
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.profile_last_updated = timezone.now()
+        instance.save()
+        return instance
+
 
 class LoginSerializer(serializers.Serializer):
     phone = serializers.CharField(required=False)

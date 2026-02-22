@@ -7,4 +7,5 @@ urlpatterns = [
     path("login_multiple_role/", RoleSelectView.as_view(), name=""),
     path("refresh/", RefreshTokenView.as_view(), name="refresh_token"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("profile/", UpdateUserProfileView.as_view(), name="update-user-profile"),
 ]

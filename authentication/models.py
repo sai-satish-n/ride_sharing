@@ -1,7 +1,6 @@
 from django.db import models
 import uuid
 
-# Create your models here.
 
 class UserStatusLookup(models.Model):
     user_status_id = models.SmallAutoField(primary_key=True)
@@ -24,7 +23,7 @@ class User(models.Model):
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
 
-    profile_last_updated = models.DateTimeField(null=True)
+    profile_last_updated = models.DateTimeField(null=True, auto_now_add=True)
     password_last_updated = models.DateTimeField(null=True)
 
     user_status = models.ForeignKey(
@@ -130,6 +129,9 @@ class Tenant(models.Model):
         db_column="verified_by_user_id"
     )
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified_at= models.DateTimeField()
+
     class Meta:
         db_table = "tenants"
         managed = False
@@ -184,7 +186,7 @@ class UserRole(models.Model):
     )
 
     assigned_by = models.ForeignKey(Tenant, on_delete= models.DO_NOTHING,null=True, db_column="assigned_by", blank=True)
-    assigned_at = models.DateTimeField()
+    assigned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "user_roles"
