@@ -3,6 +3,7 @@ from django.db import models
 from authentication.models import User, Tenant
 from drivers.models import Driver, VehicleType
 from rides.models import Ride, Region
+from django.utils import timezone
 
 
 class PricingConfig(models.Model):
@@ -31,6 +32,46 @@ class SurgePricing(models.Model):
         db_table = "surge_pricing"
         managed = False
 
+
+class SurgePricingLog(models.Model):
+    log_id = models.BigAutoField(primary_key=True)
+    surge_pricing = models.ForeignKey(
+        'SurgePricing',
+        on_delete=models.DO_NOTHING,
+        db_column='surge_pricing_id',
+        related_name='logs'
+    )
+    
+    old_multiplier = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    new_multiplier = models.DecimalField(max_digits=10, decimal_places=4)
+    effective_from = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "surge_pricing_log"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"SurgeLog[{self.log_id}] Region: {self.region_code} {self.old_multiplier} → {self.new_multiplier}"
+
+class CurrencyConversion(models.Model):
+    currency_code = models.ForeignKey(
+        'rides.Country',
+        on_delete=models.DO_NOTHING,
+        db_column="currency_code",
+        primary_key=True
+    )
+    conversion_rate_to_usd = models.DecimalField(max_digits=18, decimal_places=6)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "currency_conversion"
+        verbose_name = "Currency Conversion"
+        verbose_name_plural = "Currency Conversions"
+
+    def __str__(self):
+        return f"{self.currency_code} ({self.conversion_rate_to_usd} USD)"
 
 class RideFareSnapshot(models.Model):
     ride_fare_snapshot_id = models.BigAutoField(primary_key=True)
@@ -94,8 +135,8 @@ class PaymentGatewayEvent(models.Model):
 class Settlement(models.Model):
     settlement_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, db_column="payment_id")
-    tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id")
-    entity = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, db_column="entity_id")
+    tenant = models.ForeignKey(Tenant, on_delete=models.DO_NOTHING, db_column="tenant_id", null=True, blank=True)
+    entity = models.ForeignKey(Driver, on_delete=models.DO_NOTHING, db_column="entity_id", null=True, blank=True)
     settlement_type = models.CharField(max_length=20)  # driver | provider | partner
     gross_amount = models.DecimalField(max_digits=12, decimal_places=2)
     commission_amount = models.DecimalField(max_digits=12, decimal_places=2)
