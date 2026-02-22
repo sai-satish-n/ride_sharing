@@ -1,39 +1,51 @@
 from rest_framework import serializers
-from .models import KYCDetails, KYCMedia, KYCTypeLookup, KYCStatusLookup
-from authentication.models import User
-from drivers.models import Driver
+from authentication.models import User, Tenant, TenantStatusLookup
 
-class KYCMediaSerializer(serializers.ModelSerializer):
+class AdminUserListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = KYCMedia
-        fields = ["kyc_media_id", "media_url", "media_type", "uploaded_at"]
-
-
-class KYCDetailsSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    tenant_id = serializers.UUIDField()
-    driver = serializers.StringRelatedField()
-    kyc_type = serializers.StringRelatedField()
-    kyc_status = serializers.StringRelatedField()
-    media = KYCMediaSerializer(source="kymedia_set", many=True, read_only=True)
-
-    class Meta:
-        model = KYCDetails
+        model = User
         fields = [
-            "kyc_id",
-            "user",
-            "driver",
-            "tenant_id",
-            "kyc_type",
-            "kyc_status",
-            "submitted_at",
-            "verified_at",
-            "rejected_reason",
-            "media",
+            'user_id',
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'is_email_verified',
+            'is_phone_verified',
+            'phone_country_code',
+            'user_status',
+            'created_at'
         ]
 
 
-class KYCUpdateSerializer(serializers.ModelSerializer):
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = KYCDetails
-        fields = ["kyc_status", "rejected_reason", "verified_at", "kyc_type", "user", "tenant_id"]
+        model = User
+        fields = [
+            'user_id',
+            'first_name',
+            'last_name',
+            'email',
+            'user_status',
+            'is_email_verified',
+            'is_phone_verified'
+        ]
+
+
+class TenantListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenant
+        fields = '__all__'
+
+
+class AssignUserRoleSerializer(serializers.Serializer):
+    user_id = serializers.UUIDField()
+    role_id = serializers.IntegerField()
+    tenant_id = serializers.UUIDField(required=False, allow_null=True)
+
+
+class TenantStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TenantStatusLookup
+        fields = ['tenant_status_id', 'status_name']
+
