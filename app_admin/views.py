@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from common.models import KYCDetails, KYCStatusLookup
+from common.models import KYCDetails, KYCStatusLookup, KYCMedia
 from app_admin.serializers import *
 from django.db.models import Q
 from django.utils import timezone, dateparse

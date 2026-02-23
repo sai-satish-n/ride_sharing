@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 from os import getenv
@@ -158,3 +159,7 @@ CRONJOBS = [
     ("0 12 * * 0", "payments_module.management.commands.weekly_payouts"),
 ]
 
+
+HOST = 'http://localhost:8000/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "kyc")
+MEDIA_URL = "/kyc/"

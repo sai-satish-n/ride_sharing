@@ -9,6 +9,7 @@ from common.serializers import CountrySerializer, StateSerializer, RegionSeriali
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.utils import timezone
+from django.conf import settings
 
 
 class KYCUploadView(APIView):
@@ -62,7 +63,7 @@ class KYCUploadView(APIView):
             ).delete()
 
             path = default_storage.save(
-                f"kyc/{user_type}/{user_id}/{key}_{file_obj.name}",
+                f"{user_type}/{user_id}/{key}_{file_obj.name}",
                 file_obj
             )
 
@@ -70,7 +71,7 @@ class KYCUploadView(APIView):
                 kyc=kyc_detail,
                 kyc_type_id=type_id,
                 kyc_status=status_pending,
-                media_url=path,
+                media_url=settings.HOST+settings.MEDIA_URL+path,
                 media_type=file_obj.content_type,
                 rejected_reason=None
             )
